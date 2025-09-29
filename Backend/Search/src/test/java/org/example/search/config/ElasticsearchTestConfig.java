@@ -27,10 +27,14 @@ public class ElasticsearchTestConfig {
                         .withStartupTimeout(Duration.ofSeconds(90))
         );
         container.start();
+        System.out.println(">>> Elasticsearch Testcontainer running at: " + container.getHttpHostAddress());
     }
+
 
     @DynamicPropertySource
     static void registerElasticsearchProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.elasticsearch.uris", container::getHttpHostAddress);
+        registry.add("spring.data.elasticsearch.client.reactive.endpoints", container::getHttpHostAddress);
     }
+
 }
