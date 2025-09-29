@@ -31,10 +31,18 @@ public class ElasticsearchTestConfig {
     }
 
 
+
     @DynamicPropertySource
     static void registerElasticsearchProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.elasticsearch.uris", container::getHttpHostAddress);
-        registry.add("spring.data.elasticsearch.client.reactive.endpoints", container::getHttpHostAddress);
+        String address = container.getHttpHostAddress();
+        System.out.println(">>> Registering ES URI: " + address);
+
+        // starije verzije
+        registry.add("spring.elasticsearch.uris", () -> address);
+        registry.add("spring.data.elasticsearch.client.reactive.endpoints", () -> address);
+
+        // nova Boot 3.5+ konfiguracija
+        registry.add("spring.elasticsearch.rest.uris", () -> address);
     }
 
 }
