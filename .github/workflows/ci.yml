@@ -38,14 +38,15 @@ jobs:
           cache: gradle
 
       - name: Enable Docker in Docker for Testcontainers
-        run: |
-          echo "DOCKER_HOST=tcp://localhost:2375" >> $GITHUB_ENV
+        run: echo "DOCKER_HOST=tcp://localhost:2375" >> $GITHUB_ENV
 
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
       - name: Build & run unit + integration tests
         run: ./gradlew clean build --no-daemon
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true   
 
       - name: Upload test reports (always)
         if: always()
