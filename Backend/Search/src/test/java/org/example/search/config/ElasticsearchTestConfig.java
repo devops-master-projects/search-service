@@ -9,6 +9,10 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.springframework.context.annotation.Bean;
+
 @TestConfiguration
 public class ElasticsearchTestConfig {
 
@@ -30,19 +34,21 @@ public class ElasticsearchTestConfig {
         System.out.println(">>> Elasticsearch Testcontainer running at: " + container.getHttpHostAddress());
     }
 
-
-
     @DynamicPropertySource
     static void registerElasticsearchProperties(DynamicPropertyRegistry registry) {
         String address = container.getHttpHostAddress();
         System.out.println(">>> Registering ES URI: " + address);
-
-        // starije verzije
         registry.add("spring.elasticsearch.uris", () -> address);
         registry.add("spring.data.elasticsearch.client.reactive.endpoints", () -> address);
-
-        // nova Boot 3.5+ konfiguracija
         registry.add("spring.elasticsearch.rest.uris", () -> address);
     }
+
+
+    @Bean(destroyMethod = "close")
+    public RestClient restClient() {
+        return RestClient.builder(HttpHost.create(container.getHttpHostAddress()))
+                .build();
+    }
+}
 
 }
