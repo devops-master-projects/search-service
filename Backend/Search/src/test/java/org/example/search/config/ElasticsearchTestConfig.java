@@ -49,6 +49,6 @@ public class ElasticsearchTestConfig {
         return RestClient.builder(HttpHost.create(container.getHttpHostAddress()))
                 .build();
     }
-}
+
 
 }
