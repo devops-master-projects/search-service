@@ -1,4 +1,11 @@
 package org.example.search.config;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -8,10 +15,6 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
-
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
 public class ElasticsearchTestConfig {
@@ -39,16 +42,24 @@ public class ElasticsearchTestConfig {
         String address = container.getHttpHostAddress();
         System.out.println(">>> Registering ES URI: " + address);
         registry.add("spring.elasticsearch.uris", () -> address);
-        registry.add("spring.data.elasticsearch.client.reactive.endpoints", () -> address);
         registry.add("spring.elasticsearch.rest.uris", () -> address);
+        registry.add("spring.data.elasticsearch.client.reactive.endpoints", () -> address);
     }
 
-
+    // === Beans for ES Java API Client ===
     @Bean(destroyMethod = "close")
     public RestClient restClient() {
         return RestClient.builder(HttpHost.create(container.getHttpHostAddress()))
                 .build();
     }
 
+    @Bean(destroyMethod = "close")
+    public ElasticsearchTransport transport(RestClient restClient) {
+        return new RestClientTransport(restClient, new JacksonJsonpMapper());
+    }
 
+    @Bean
+    public ElasticsearchClient elasticsearchClient(ElasticsearchTransport transport) {
+        return new ElasticsearchClient(transport);
+    }
 }
