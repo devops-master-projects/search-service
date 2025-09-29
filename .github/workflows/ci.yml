@@ -13,7 +13,7 @@ jobs:
       contents: read
     defaults:
       run:
-        working-directory: Backend/Search 
+        working-directory: Backend/Search
 
     steps:
       - name: Checkout
@@ -33,6 +33,8 @@ jobs:
 
       - name: Build & run unit + integration tests
         run: ./gradlew clean build --no-daemon
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true
 
       - name: Upload test reports (always)
         if: always()
