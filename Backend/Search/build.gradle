@@ -10,7 +10,7 @@ description = 'Search'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -46,4 +46,7 @@ tasks.named('test') {
     jvmArgs += [
             "--add-opens=java.base/java.math=ALL-UNNAMED"
     ]
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
