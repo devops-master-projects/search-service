@@ -13,7 +13,16 @@ jobs:
       contents: read
     defaults:
       run:
-        working-directory: Backend/Search 
+        working-directory: Backend/Search
+
+    services:
+      docker:
+        image: docker:20.10.24-dind
+        options: --privileged
+        ports:
+          - 2375:2375
+        env:
+          DOCKER_TLS_CERTDIR: ""   # disable TLS, Testcontainers prefers this
 
     steps:
       - name: Checkout
@@ -27,6 +36,10 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
+
+      - name: Enable Docker in Docker for Testcontainers
+        run: |
+          echo "DOCKER_HOST=tcp://localhost:2375" >> $GITHUB_ENV
 
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
