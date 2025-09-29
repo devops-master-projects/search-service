@@ -5,17 +5,15 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
+
 @TestConfiguration
 public class ElasticsearchTestConfig {
-
     private static final ElasticsearchContainer container =
-            new ElasticsearchContainer(
-                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.15.0")
-            ).withEnv("discovery.type", "single-node");
-
-    static {
-        container.start();
-    }
+            new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.15.0"))
+                    .withEnv("discovery.type", "single-node")
+                    .withEnv("xpack.security.enabled", "false")
+                    .withEnv("ES_JAVA_OPTS", "-Xms256m -Xmx256m");
+    static { container.start(); }
 
     @DynamicPropertySource
     static void registerElasticsearchProperties(DynamicPropertyRegistry registry) {
