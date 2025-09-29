@@ -1,12 +1,12 @@
 package org.example.search.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
 @AllArgsConstructor
+@Getter
+@Setter
 public class LocationDto {
     private String country;
     private String city;

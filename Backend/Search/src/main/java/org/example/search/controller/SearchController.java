@@ -1,7 +1,11 @@
 package org.example.search.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.search.dto.SearchRequest;
+import org.example.search.dto.SearchResponse;
 import org.example.search.model.AccommodationDocument;
+import org.example.search.service.SearchService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.Query;
@@ -15,19 +19,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchController {
 
-    private final ElasticsearchOperations elasticsearchOperations;
+    private final SearchService searchService;
 
     @GetMapping
     public List<AccommodationDocument> search(
             @RequestParam String location,
             @RequestParam Integer guests
     ) {
-        Criteria criteria = new Criteria("location.city").is(location)
-                .and(new Criteria("maxGuests").greaterThanEqual(guests));
-
-        Query query = new CriteriaQuery(criteria);
-        return elasticsearchOperations.search(query, AccommodationDocument.class)
-                .map(hit -> hit.getContent())
-                .toList();
+        return searchService.search(location, guests);
     }
+
+    @PostMapping
+    public ResponseEntity<List<SearchResponse>> search(@RequestBody SearchRequest request) {
+        return ResponseEntity.ok(searchService.searchAccommodations(request));
+    }
+
+    @GetMapping("/all")
+    public List<AccommodationDocument> getAllAccommodations() {
+        return searchService.findAll();
+    }
+
 }
