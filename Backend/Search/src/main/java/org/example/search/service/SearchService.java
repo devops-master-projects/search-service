@@ -43,9 +43,10 @@ public class SearchService {
     }
     public List<SearchResponse> searchAccommodations(SearchRequest request) {
         Criteria criteria = new Criteria();
-
+        System.out.println(">>> Location from request: " + request.getLocation());
         if (request.getLocation() != null && !request.getLocation().isBlank()) {
             criteria = criteria.and(new Criteria("location.city").is(request.getLocation()));
+            System.out.println(">>> Criteria after location: " + criteria);
         }
 
         if (request.getGuests() != null && request.getGuests() > 0) {

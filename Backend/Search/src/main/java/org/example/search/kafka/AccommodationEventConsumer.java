@@ -26,6 +26,7 @@ public class AccommodationEventConsumer {
     public void consumeAccommodationEvent(String message) {
         try {
             AccommodationEvent event = objectMapper.readValue(message, AccommodationEvent.class);
+            System.out.println("Received event type: " + event.getEventType());
 
             if ("AccommodationCreated".equals(event.getEventType())) {
                 // kreiranje novog dokumenta
@@ -46,7 +47,6 @@ public class AccommodationEventConsumer {
                 System.out.println("Indexed accommodation: " + doc.getId() + " [Created]");
             }
             else if ("AccommodationUpdated".equals(event.getEventType())) {
-                // parcijalni update postojećeg dokumenta
                 Map<String, Object> updateFields = new HashMap<>();
                 updateFields.put("name", event.getName());
                 updateFields.put("description", event.getDescription());
@@ -82,8 +82,12 @@ public class AccommodationEventConsumer {
     @KafkaListener(topics = "availability-events", groupId = "search-service")
     public void consumeAvailabilityEvent(String message) {
         try {
-            AvailabilityEvent event = objectMapper.readValue(message, AvailabilityEvent.class);
+            AvailabilityEvent event = objectMapper.readValue(
+                    objectMapper.readTree(message).asText(),
+                    AvailabilityEvent.class
+            );
             AccommodationDocument doc = elasticsearchOperations.get(event.getAccommodationId(), AccommodationDocument.class);
+            System.out.println(doc.getLocation());
 
             if (doc == null) {
                 System.out.println("No accommodation found for availability " + event.getAccommodationId());
@@ -108,7 +112,6 @@ public class AccommodationEventConsumer {
                     doc.getAvailabilities().add(dto);
                     elasticsearchOperations.save(doc);
                     break;
-
                 case "AvailabilityDeleted":
                     doc.getAvailabilities().removeIf(a -> a.getId().equals(event.getId()));
                     elasticsearchOperations.save(doc);

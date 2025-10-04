@@ -16,22 +16,39 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Document(indexName = "accommodations_v2")
-@Getter
-@Setter
 public class AccommodationDocument {
 
     @Id
     private String id;
+
+    @Field(type = FieldType.Text)
     private String name;
+
+    @Field(type = FieldType.Text)
     private String description;
+
+    @Field(type = FieldType.Integer)
     private Integer minGuests;
+
+    @Field(type = FieldType.Integer)
     private Integer maxGuests;
+
+    @Field(type = FieldType.Boolean)
     private boolean autoConfirm;
+
+    @Field(type = FieldType.Keyword)
     private String pricingMode;
 
+    @Field(type = FieldType.Object)
     private LocationDto location;
+
+    @Field(type = FieldType.Keyword)
     private List<String> amenities;
+
+    @Field(type = FieldType.Keyword)
     private List<String> photos;
+
     @Field(type = FieldType.Nested)
+    @Builder.Default
     private List<AvailabilityDto> availabilities = new ArrayList<>();
 }
