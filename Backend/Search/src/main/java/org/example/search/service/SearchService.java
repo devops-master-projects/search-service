@@ -6,7 +6,6 @@ import org.example.search.dto.SearchRequest;
 import org.example.search.dto.SearchResponse;
 import org.example.search.model.AccommodationDocument;
 
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -76,7 +75,7 @@ public class SearchService {
                                         !a.getEndDate().isBefore(start) &&
                                         !a.getStartDate().isAfter(end))
                                 .sorted(Comparator.comparing(AvailabilityDto::getStartDate))
-                                .collect(Collectors.toList());
+                                .toList();
 
                         LocalDate cursor = start;
 
