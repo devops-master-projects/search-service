@@ -1,4 +1,4 @@
-package org.example.search.controller;
+package org.example.search.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

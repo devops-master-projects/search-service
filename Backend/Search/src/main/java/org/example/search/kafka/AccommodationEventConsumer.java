@@ -6,11 +6,11 @@ import org.example.search.dto.AccommodationEvent;
 import org.example.search.dto.AvailabilityDto;
 import org.example.search.dto.AvailabilityEvent;
 import org.example.search.model.AccommodationDocument;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.document.Document;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +87,6 @@ public class AccommodationEventConsumer {
                     AvailabilityEvent.class
             );
             AccommodationDocument doc = elasticsearchOperations.get(event.getAccommodationId(), AccommodationDocument.class);
-            System.out.println(doc.getLocation());
 
             if (doc == null) {
                 System.out.println("No accommodation found for availability " + event.getAccommodationId());
@@ -96,9 +95,7 @@ public class AccommodationEventConsumer {
 
             // Obradi event tip
             switch (event.getEventType()) {
-                case "AvailabilityCreated":
-                case "AvailabilityUpdated":
-                case "AvailabilityStatusChanged":
+                case "AvailabilityCreated", "AvailabilityUpdated", "AvailabilityStatusChanged" -> {
                     AvailabilityDto dto = new AvailabilityDto(
                             event.getId(),
                             event.getStartDate(),
@@ -111,11 +108,11 @@ public class AccommodationEventConsumer {
                     doc.getAvailabilities().removeIf(a -> a.getId().equals(event.getId()));
                     doc.getAvailabilities().add(dto);
                     elasticsearchOperations.save(doc);
-                    break;
-                case "AvailabilityDeleted":
+                }
+                case "AvailabilityDeleted" -> {
                     doc.getAvailabilities().removeIf(a -> a.getId().equals(event.getId()));
                     elasticsearchOperations.save(doc);
-                    break;
+                }
             }
 
             System.out.println("Processed availability event: " + event.getEventType() + " for " + event.getAccommodationId());

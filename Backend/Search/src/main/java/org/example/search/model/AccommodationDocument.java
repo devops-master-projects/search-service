@@ -1,6 +1,9 @@
 package org.example.search.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.example.search.dto.AvailabilityDto;
 import org.example.search.dto.LocationDto;
 import org.springframework.data.annotation.Id;
