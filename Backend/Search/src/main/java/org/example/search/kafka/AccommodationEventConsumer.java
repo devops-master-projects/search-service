@@ -13,6 +13,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -79,6 +80,8 @@ public class AccommodationEventConsumer {
     }
 
 
+
+
     @KafkaListener(topics = "availability-events", groupId = "search-service")
     public void consumeAvailabilityEvent(String message) {
         try {
@@ -121,6 +124,38 @@ public class AccommodationEventConsumer {
             e.printStackTrace();
         }
     }
+
+
+    @KafkaListener(topics = "accommodation-deleted-events", groupId = "search-service")
+    public void consumeAccommodationsDeletedEvent(String message) {
+        try {
+            Map<String, Object> payload = objectMapper.readValue(message, Map.class);
+            List<String> ids = (List<String>) payload.get("accommodationIds");
+
+            if (ids == null || ids.isEmpty()) {
+                System.out.println("No accommodation IDs provided for deletion.");
+                return;
+            }
+
+            System.out.println("Deleting " + ids.size() + " accommodations from search index...");
+
+            for (String id : ids) {
+                try {
+                    elasticsearchOperations.delete(id, AccommodationDocument.class);
+                    System.out.println("Deleted accommodation: " + id);
+                } catch (Exception e) {
+                    System.err.println("Failed to delete accommodation " + id + ": " + e.getMessage());
+                }
+            }
+
+            System.out.println("All specified accommodations deleted from search index.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
 
