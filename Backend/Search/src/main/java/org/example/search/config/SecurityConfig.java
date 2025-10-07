@@ -28,6 +28,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/search/all").permitAll()
                         .requestMatchers("/api/search/**").authenticated()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/actuator/info",
+                                "/actuator/prometheus",
+                                "/actuator/metrics",
+                                "/actuator/metrics/**"
+                        ).permitAll()
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
