@@ -40,6 +40,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     testImplementation "org.testcontainers:junit-jupiter:1.20.1"
     testImplementation "org.testcontainers:elasticsearch:1.20.1"
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
 }
 
 tasks.named('test') {
