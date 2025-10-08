@@ -1,6 +1,7 @@
 package org.example.search.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.search.dto.LocationDto;
 import org.example.search.dto.SearchRequest;
 import org.example.search.dto.SearchResponse;
 import org.example.search.model.AccommodationDocument;
@@ -60,29 +61,44 @@ public class SearchControllerTests {
     }
 
     @Test
-    void postSearchEndpoint_returnsSearchResponses() throws Exception {
-        SearchRequest req = new SearchRequest();
-        req.setLocation("City");
-        req.setGuests(2);
-
-        SearchResponse resp = SearchResponse.builder()
-                .id("r1")
-                .name("Res1")
-                .unitPrice(BigDecimal.valueOf(50))
-                .totalPrice(BigDecimal.valueOf(100))
+    void getSearchEndpoint_returnsAccommodationDocuments() throws Exception {
+        // Arrange
+        LocationDto location = LocationDto.builder()
+                .country("Serbia")
+                .city("Novi Sad")
+                .address("Bulevar Oslobodjenja 46")
+                .postalCode("21000")
                 .build();
 
-        Mockito.when(searchService.searchAccommodations(any(SearchRequest.class))).thenReturn(List.of(resp));
+        AccommodationDocument doc = AccommodationDocument.builder()
+                .id("a1")
+                .name("Hotel Park")
+                .description("Nice central hotel")
+                .minGuests(1)
+                .maxGuests(4)
+                .autoConfirm(true)
+                .pricingMode("PER_PERSON")
+                .location(location)
+                .build();
 
-        mockMvc.perform(post("/api/search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req))
+        Mockito.when(searchService.search("Novi Sad", 2))
+                .thenReturn(List.of(doc));
+
+        // Act + Assert
+        mockMvc.perform(get("/api/search")
+                        .param("location", "Novi Sad")
+                        .param("guests", "2")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is("r1")))
-                .andExpect(jsonPath("$[0].unitPrice", is(50)));
+                .andExpect(jsonPath("$[0].id", is("a1")))
+                .andExpect(jsonPath("$[0].name", is("Hotel Park")))
+                .andExpect(jsonPath("$[0].location.city", is("Novi Sad")))
+                .andExpect(jsonPath("$[0].autoConfirm", is(true)))
+                .andExpect(jsonPath("$[0].pricingMode", is("PER_PERSON")));
     }
+
+
 
     @Test
     void getAllEndpoint_returnsAllAccommodations() throws Exception {
